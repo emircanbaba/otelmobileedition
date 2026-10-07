@@ -1,51 +1,48 @@
-x<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>OTEL? - Mobile Edition!!</title>
+    <title>OTEL? - Mobile Edition</title>
     <style>
         * { box-sizing: border-box; user-select: none; margin: 0; padding: 0; -webkit-touch-callout: none; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Courier New', Courier, monospace; color: #fff; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Courier New', Courier, monospace; color: #fff; touch-action: none; }
         #game-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         
         /* UI Katmanları */
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.9); z-index: 10; text-align: center; }
-        h1 { font-size: 3rem; color: #8b0000; text-shadow: 0 0 15px #ff0000; margin-bottom: 0.5rem; letter-spacing: 3px; }
-        .story-text { max-width: 650px; color: #ccc; font-style: italic; font-size: 1rem; margin-bottom: 1.5rem; line-height: 1.4; padding: 0 20px; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.92); z-index: 10; text-align: center; }
+        h1 { font-size: 2.5rem; color: #8b0000; text-shadow: 0 0 15px #ff0000; margin-bottom: 0.5rem; letter-spacing: 2px; }
+        .story-text { max-width: 600px; color: #ccc; font-style: italic; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.4; padding: 0 20px; }
         .btn { width: 220px; padding: 12px 20px; margin: 8px 0; background: #111; color: #eee; border: 2px solid #555; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; font-weight: bold; }
         .btn:hover, .btn:active { background: #8b0000; color: #fff; border-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
         
         /* HUD */
         #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; display: none; }
-        .hud-box { background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 5px; border: 1px solid #777; position: absolute; font-size: 0.95rem; font-weight: bold; text-shadow: 2px 2px 4px #000; }
+        .hud-box { background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 5px; border: 1px solid #777; position: absolute; font-size: 0.9rem; font-weight: bold; text-shadow: 2px 2px 4px #000; pointer-events: none; }
         #key-counter { top: 15px; left: 15px; color: #ffd700; border-color: #ffd700; }
         #floor-counter { top: 55px; left: 15px; color: #00ffcc; border-color: #00ffcc; }
         #day-counter { top: 95px; left: 15px; color: #ff5555; border-color: #ff5555; }
         
         /* Minimap */
-        #minimap-canvas { top: 15px; right: 15px; width: 120px; height: 120px; border: 2px solid #aaa; background: rgba(0,0,0,0.8); border-radius: 4px; padding: 0; }
+        #minimap-canvas { top: 15px; right: 15px; width: 110px; height: 110px; border: 2px solid #aaa; background: rgba(0,0,0,0.8); border-radius: 4px; padding: 0; }
 
-        #stamina-bar-container { position: absolute; bottom: 15px; left: 20px; width: 160px; height: 12px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; }
+        #stamina-bar-container { position: absolute; bottom: 15px; left: 20px; width: 150px; height: 12px; background: rgba(0,0,0,0.6); border: 1px solid #aaa; pointer-events: none; }
         #stamina-bar { width: 100%; height: 100%; background: #00ffcc; transition: width 0.1s linear; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; transform: translate(-50%, -50%); }
-        #interaction-msg { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 1.1rem; color: #ff5555; background: rgba(0,0,0,0.85); padding: 8px 15px; border-radius: 4px; border: 1px solid #ff5555; display: none; z-index: 10; font-weight: bold; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        #interaction-msg { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 1rem; color: #ff5555; background: rgba(0,0,0,0.85); padding: 8px 15px; border-radius: 4px; border: 1px solid #ff5555; display: none; z-index: 10; font-weight: bold; pointer-events: none; }
         #hide-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); box-shadow: inset 0 0 100px #000; display: none; z-index: 2; pointer-events: none; }
         
-        /* Mobil Kontroller (Yeniden Tasarlandı) */
-        .mobile-ctrl { position: absolute; pointer-events: auto; display: none; z-index: 6; }
-        #joystick-zone { bottom: 20px; left: 20px; width: 110px; height: 110px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; touch-action: none; }
-        #joystick-knob { width: 45px; height: 45px; background: rgba(255,0,0,0.5); border-radius: 50%; position: absolute; top: 30.5px; left: 30.5px; }
+        /* Joystick & Butonlar */
+        #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.25); border-radius: 50%; touch-action: none; pointer-events: none; z-index: 6; display: none; }
+        #joystick-knob { width: 50px; height: 50px; background: rgba(255,0,0,0.55); border-radius: 50%; position: absolute; top: 33px; left: 33px; }
         
-        #btn-action-group { bottom: 20px; right: 20px; display: flex; flex-direction: row; gap: 10px; align-items: flex-end; }
-        .action-col { display: flex; flex-direction: column; gap: 10px; }
-        .action-btn { width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.75rem; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        #btn-action-group { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: row; gap: 12px; align-items: flex-end; z-index: 7; pointer-events: auto; }
+        .action-col { display: flex; flex-direction: column; gap: 12px; }
+        .action-btn { width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.75rem; box-shadow: 0 4px 8px rgba(0,0,0,0.5); cursor: pointer; }
         
         #btn-flashlight { background: rgba(255,255,255,0.2); border: 2px solid #fff; color: #fff; }
         #btn-run { background: rgba(0,255,204,0.3); border: 2px solid #00ffcc; color: #00ffcc; }
-        #btn-interact { background: rgba(255,215,0,0.3); border: 2px solid #ffd700; color: #ffd700; width: 65px; height: 65px; font-size: 0.8rem; }
-        
-        #touch-look-zone { position: absolute; top: 0; right: 0; width: 55%; height: 100%; pointer-events: auto; touch-action: none; display: none; z-index: 5; }
+        #btn-interact { background: rgba(255,215,0,0.3); border: 2px solid #ffd700; color: #ffd700; width: 68px; height: 68px; font-size: 0.8rem; }
         
         .setting-row { display: flex; align-items: center; justify-content: space-between; width: 280px; margin: 12px 0; font-size: 1rem; }
         input[type=range] { width: 110px; }
@@ -61,28 +58,28 @@ x<!DOCTYPE html>
         <div id="key-counter" class="hud-box">Anahtarlar: <span id="keys-found">0</span> / 20</div>
         <div id="floor-counter" class="hud-box">Kat: <span id="current-floor">1</span> / 3</div>
         <div id="day-counter" class="hud-box">Gün: <span id="current-day">1</span> / 3</div>
-        <canvas id="minimap-canvas" class="hud-box" width="120" height="120"></canvas>
+        <canvas id="minimap-canvas" class="hud-box" width="110" height="110"></canvas>
 
         <div id="stamina-bar-container"><div id="stamina-bar"></div></div>
         <div id="crosshair"></div>
         <div id="interaction-msg">Geliştirme Aşamasında</div>
 
-        <div id="joystick-zone" class="mobile-ctrl"><div id="joystick-knob"></div></div>
-        <div id="btn-action-group" class="mobile-ctrl">
+        <div id="joystick-zone"><div id="joystick-knob"></div></div>
+        <div id="btn-action-group">
             <div class="action-col">
                 <div id="btn-flashlight" class="action-btn">FENER</div>
                 <div id="btn-run" class="action-btn">KOŞ</div>
             </div>
             <div id="btn-interact" class="action-btn">KULLAN</div>
         </div>
-        <div id="touch-look-zone"></div>
     </div>
 
     <!-- Menüler -->
     <div id="main-menu" class="overlay">
-        <h1>OTEL?-Mobile Edition</h1>
+        <h1>OTEL? - Mobil</h1>
         <p class="story-text">"Ben Cyberpenguin bu oyun bir efsanenin doğuşudur bu oyunu yapmak için ilk kodlama'ya atıldığımda başaramamıştım sebebi doğru düzgün kodlama bilmiyordum şimdi sizlerle birlikte bu 3 katlı otelden kaçacağız :)"</p>
         <button id="btn-play" class="btn">Oyna</button>
+        <button id="btn-rotate" class="btn">Yatay Çevir</button>
         <button id="btn-settings" class="btn">Ayarlar</button>
         <button id="btn-exit" class="btn">Çık</button>
     </div>
@@ -113,9 +110,9 @@ x<!DOCTYPE html>
         let keysFound = 0;
         let currentDay = 1;
         let isGameRunning = false;
-        let isMobile = false;
         let isCaughtProcessing = false;
-        let mobileRunning = false; // Mobilde koşma durumu
+        let mobileRunning = false;
+        let touchSensitivity = 0.0035;
 
         const player = {
             floor: 0,
@@ -132,8 +129,6 @@ x<!DOCTYPE html>
             radius: 0.6
         };
 
-        const keysPressed = {};
-        let mouseSensitivity = 0.002;
         let flashlight, flashlightTarget, playerArm;
 
         const monster = {
@@ -517,63 +512,122 @@ x<!DOCTYPE html>
             playerArm.visible = !player.isHidden; 
         }
 
-        function setupInputs() {
-            window.addEventListener('keydown', e => { 
-                keysPressed[e.code] = true; 
-                if(e.code === 'KeyF' && !player.isHidden) player.flashlightOn = !player.flashlightOn; 
-                if(e.code === 'KeyE') checkInteractions(); 
-            });
-            window.addEventListener('keyup', e => keysPressed[e.code] = false);
-            window.addEventListener('mousemove', e => {
-                if (document.pointerLockElement === document.body) {
-                    player.rotation.y -= e.movementX * mouseSensitivity;
-                    player.rotation.x -= e.movementY * mouseSensitivity;
-                    player.rotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, player.rotation.x));
-                }
-            });
+        // --- HİÇ KİTLENMEYEN KESİN GİRDİ YALITIMI (ID TABANLI MULTI-TOUCH) ---
+        let joystickTouchId = null;
+        let joystickOrigin = { x: 0, y: 0 };
+        let joystickMove = { x: 0, y: 0 };
+        
+        let lookTouchId = null;
+        let lastTouchX = 0, lastTouchY = 0;
 
-            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                isMobile = true;
-                document.querySelectorAll('.mobile-ctrl').forEach(el => el.style.display = 'block');
-                document.getElementById('touch-look-zone').style.display = 'block';
-                setupMobileControls();
-            }
-        }
-
-        let joystickActive = false, joystickOrigin = {x:0, y:0}, joystickMove = {x:0, y:0};
         function setupMobileControls() {
             const zone = document.getElementById('joystick-zone');
             const knob = document.getElementById('joystick-knob');
-            const lookZone = document.getElementById('touch-look-zone');
 
-            zone.addEventListener('touchstart', e => { joystickActive = true; const rect = zone.getBoundingClientRect(); joystickOrigin = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 }; });
-            zone.addEventListener('touchmove', e => {
-                if(!joystickActive || player.isHidden) return;
-                const dx = e.touches[0].clientX - joystickOrigin.x, dy = e.touches[0].clientY - joystickOrigin.y;
-                const dist = Math.min(Math.hypot(dx, dy), 40), angle = Math.atan2(dy, dx);
-                knob.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
-                joystickMove = { x: (Math.cos(angle)*dist)/40, y: (Math.sin(angle)*dist)/40 };
-            });
-            const resetJoy = () => { joystickActive = false; joystickMove = {x:0,y:0}; knob.style.transform = `translate(0px, 0px)`; };
-            zone.addEventListener('touchend', resetJoy); zone.addEventListener('touchcancel', resetJoy);
+            zone.style.display = 'block';
 
-            let lastTouchX = 0, lastTouchY = 0;
-            lookZone.addEventListener('touchstart', e => { lastTouchX = e.touches[0].clientX; lastTouchY = e.touches[0].clientY; });
-            lookZone.addEventListener('touchmove', e => {
-                player.rotation.y -= (e.touches[0].clientX - lastTouchX) * mouseSensitivity * 1.8;
-                player.rotation.x -= (e.touches[0].clientY - lastTouchY) * mouseSensitivity * 1.8;
-                player.rotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, player.rotation.x));
-                lastTouchX = e.touches[0].clientX; lastTouchY = e.touches[0].clientY;
-            });
+            // Global Touch Start: Butonlara tıklanmadıysa bölgeye göre ID ata
+            window.addEventListener('touchstart', e => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    
+                    // Eğer dokunulan yer Fener, Koş, Kullan veya Menü butonlarıysa kamera/joystick işlemine sokma!
+                    if (e.target.closest('#btn-action-group') || e.target.closest('.overlay')) {
+                        continue;
+                    }
 
-            document.getElementById('btn-flashlight').addEventListener('touchstart', e => { e.preventDefault(); if(!player.isHidden) player.flashlightOn = !player.flashlightOn; });
+                    // Sol ekran yarısı -> Joystick (Hareket)
+                    if (touch.clientX < window.innerWidth / 2 && joystickTouchId === null) {
+                        joystickTouchId = touch.identifier;
+                        joystickOrigin = { x: touch.clientX, y: touch.clientY };
+                        zone.style.left = (touch.clientX - 60) + 'px';
+                        zone.style.top = (touch.clientY - 60) + 'px';
+                        zone.style.bottom = 'auto';
+                        knob.style.transform = `translate(0px, 0px)`;
+                        joystickMove = { x: 0, y: 0 };
+                    }
+                    // Sağ ekran yarısı -> Kamera Çevirme
+                    else if (touch.clientX >= window.innerWidth / 2 && lookTouchId === null) {
+                        lookTouchId = touch.identifier;
+                        lastTouchX = touch.clientX;
+                        lastTouchY = touch.clientY;
+                    }
+                }
+            }, { passive: false });
+
+            // Eşzamanlı ve Bağımsız Hareket Takibi (Touch Move)
+            window.addEventListener('touchmove', e => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    
+                    // Sadece joystick parmağını hareket ettir
+                    if (touch.identifier === joystickTouchId && !player.isHidden) {
+                        const dx = touch.clientX - joystickOrigin.x;
+                        const dy = touch.clientY - joystickOrigin.y;
+                        const dist = Math.min(Math.hypot(dx, dy), 45);
+                        const angle = Math.atan2(dy, dx);
+                        const kx = Math.cos(angle) * dist;
+                        const ky = Math.sin(angle) * dist;
+                        knob.style.transform = `translate(${kx}px, ${ky}px)`;
+                        joystickMove = { x: kx / 45, y: ky / 45 };
+                    }
+
+                    // Sadece kamera parmağını döndür
+                    if (touch.identifier === lookTouchId) {
+                        const deltaX = touch.clientX - lastTouchX;
+                        const deltaY = touch.clientY - lastTouchY;
+                        player.rotation.y -= deltaX * touchSensitivity;
+                        player.rotation.x -= deltaY * touchSensitivity;
+                        player.rotation.x = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, player.rotation.x));
+                        lastTouchX = touch.clientX;
+                        lastTouchY = touch.clientY;
+                    }
+                }
+            }, { passive: false });
+
+            // Parmak Kaldırıldığında ID'leri Temizle (Asla Kilitlenmez)
+            const handleTouchEnd = e => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    if (touch.identifier === joystickTouchId) {
+                        joystickTouchId = null;
+                        joystickMove = { x: 0, y: 0 };
+                        knob.style.transform = `translate(0px, 0px)`;
+                        zone.style.left = '30px';
+                        zone.style.bottom = '30px';
+                        zone.style.top = 'auto';
+                    }
+                    if (touch.identifier === lookTouchId) {
+                        lookTouchId = null;
+                    }
+                }
+            };
+
+            window.addEventListener('touchend', handleTouchEnd);
+            window.addEventListener('touchcancel', handleTouchEnd);
+
+            // Arayüz Buton Dinleyicileri (Kesin Yalıtımlı)
+            document.getElementById('btn-flashlight').addEventListener('touchstart', e => { 
+                e.stopPropagation(); 
+                if(!player.isHidden) player.flashlightOn = !player.flashlightOn; 
+            }, { passive: false });
             
-            // Mobil Koşma Tuşu Mantığı
             const runBtn = document.getElementById('btn-run');
-            runBtn.addEventListener('touchstart', e => { e.preventDefault(); mobileRunning = true; runBtn.style.background = 'rgba(0,255,204,0.7)'; });
-            runBtn.addEventListener('touchend', e => { e.preventDefault(); mobileRunning = false; runBtn.style.background = 'rgba(0,255,204,0.3)'; });
+            runBtn.addEventListener('touchstart', e => { 
+                e.stopPropagation(); 
+                mobileRunning = true; 
+                runBtn.style.background = 'rgba(0,255,204,0.7)'; 
+            }, { passive: false });
+            runBtn.addEventListener('touchend', e => { 
+                e.stopPropagation(); 
+                mobileRunning = false; 
+                runBtn.style.background = 'rgba(0,255,204,0.3)'; 
+            }, { passive: false });
 
-            document.getElementById('btn-interact').addEventListener('touchstart', e => { e.preventDefault(); checkInteractions(); });
+            document.getElementById('btn-interact').addEventListener('touchstart', e => { 
+                e.stopPropagation(); 
+                checkInteractions(); 
+            }, { passive: false });
         }
 
         function updateMovement() {
@@ -582,12 +636,11 @@ x<!DOCTYPE html>
                 return; 
             }
 
-            const shiftPressed = keysPressed['ShiftLeft'] || keysPressed['ShiftRight'] || mobileRunning;
             if (player.isExhausted) {
                 if (player.stamina >= 30) player.isExhausted = false; 
             }
 
-            player.isRunning = shiftPressed && !player.isExhausted && player.stamina > 2;
+            player.isRunning = mobileRunning && !player.isExhausted && player.stamina > 2;
             
             if (player.isRunning) {
                 player.stamina = Math.max(0, player.stamina - 0.25);
@@ -597,14 +650,8 @@ x<!DOCTYPE html>
             }
             document.getElementById('stamina-bar').style.width = player.stamina + '%';
 
-            let moveX = 0, moveZ = 0;
-            if (keysPressed['KeyW'] || keysPressed['ArrowUp']) moveZ -= 1;
-            if (keysPressed['KeyS'] || keysPressed['ArrowDown']) moveZ += 1;
-            if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) moveX -= 1;
-            if (keysPressed['KeyD'] || keysPressed['ArrowRight']) moveX += 1;
-
-            if (joystickActive) { moveX = joystickMove.x; moveZ = joystickMove.y; }
-
+            let moveX = joystickMove.x;
+            let moveZ = joystickMove.y;
             const isMoving = (moveX !== 0 || moveZ !== 0);
 
             if (isMoving && stepAudio) {
@@ -710,14 +757,14 @@ x<!DOCTYPE html>
             const msgEl = document.getElementById('interaction-msg');
             
             if (player.isHidden) {
-                msgEl.innerText = "Dolaptan Çık [E]";
+                msgEl.innerText = "Dolaptan Çık [KULLAN]";
                 active = true;
             } else {
-                closets.forEach(c => { if (c.floor === player.floor && player.position.distanceTo(c.pos) < 4.0) { msgEl.innerText = "Dolaba Saklan [E]"; active = true; }});
-                if(!active) keyObjects.forEach(k => { if (!k.collected && k.floor === player.floor && player.position.distanceTo(k.pos) < 2.5) { msgEl.innerText = "Anahtarı Al [E]"; active = true; }});
+                closets.forEach(c => { if (c.floor === player.floor && player.position.distanceTo(c.pos) < 4.0) { msgEl.innerText = "Dolaba Saklan [KULLAN]"; active = true; }});
+                if(!active) keyObjects.forEach(k => { if (!k.collected && k.floor === player.floor && player.position.distanceTo(k.pos) < 2.5) { msgEl.innerText = "Anahtarı Al [KULLAN]"; active = true; }});
                 if(!active) interactables.forEach(i => { 
                     if (i.floor === player.floor && player.position.distanceTo(i.pos) < 3.5) { 
-                        if (i.type === 'exit') { msgEl.innerText = "Çıkış Kapısı [E]"; active = true; }
+                        if (i.type === 'exit') { msgEl.innerText = "Çıkış Kapısı [KULLAN]"; active = true; }
                         else if (i.type === 'barricade') { msgEl.innerText = "Geliştirme Aşamasında (Merdiven Kapalı)"; active = true; }
                     }
                 });
@@ -729,8 +776,8 @@ x<!DOCTYPE html>
         const minimapCanvas = document.getElementById('minimap-canvas');
         const mtx = minimapCanvas.getContext('2d');
         function drawMinimap() {
-            mtx.clearRect(0, 0, 120, 120);
-            const scale = 120 / (MAP_SIZE * CELL_SIZE);
+            mtx.clearRect(0, 0, 110, 110);
+            const scale = 110 / (MAP_SIZE * CELL_SIZE);
             
             mtx.fillStyle = '#333';
             for(let r = 0; r < MAP_SIZE; r++) {
@@ -774,7 +821,7 @@ x<!DOCTYPE html>
             if (currentDay > 3) {
                 triggerGameOver(false, true); 
             } else {
-                showMsg(`Yakalandın! Gün ${currentDay}/3 başlıyor. Pozisyonun sıfırlandı.`);
+                showMsg(`Yakalandın! Gün ${currentDay}/3 başlıyor.`);
                 
                 player.floor = 0;
                 player.position.set(CELL_SIZE * 1.5, 0, CELL_SIZE * 1.5);
@@ -809,16 +856,21 @@ x<!DOCTYPE html>
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mobil performans optimizasyonu
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
             scene.add(new THREE.AmbientLight(0x080808));
 
-            setupEquipment(); setupInputs();
-            window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+            setupEquipment();
+            setupMobileControls();
+
+            window.addEventListener('resize', () => { 
+                camera.aspect = window.innerWidth/window.innerHeight; 
+                camera.updateProjectionMatrix(); 
+                renderer.setSize(window.innerWidth, window.innerHeight); 
+            });
         }
 
         function startGame(resetAll = false) {
-            // Mobilde yatay ekran ve tam ekran kilidi
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('landscape').catch(err => {});
             }
@@ -858,7 +910,6 @@ x<!DOCTYPE html>
             document.getElementById('hide-overlay').style.display = 'none';
 
             isGameRunning = true; lastTime = performance.now();
-            if (!isMobile) document.body.requestPointerLock();
             animate();
         }
 
@@ -866,7 +917,7 @@ x<!DOCTYPE html>
             isGameRunning = false;
             manageChaseMusic(false);
             if(stepAudio) { stepAudio.pause(); stepAudio.currentTime = 0; }
-            if (document.pointerLockElement) document.exitPointerLock();
+            
             const s = document.getElementById('game-over'), t = document.getElementById('game-over-title'), d = document.getElementById('game-over-desc');
             t.innerText = won ? "KAÇTIN!" : "3 GÜN BİTTİ - OYUN BİTTİ!"; t.style.color = won ? "#00ff00" : "#8b0000";
             d.innerText = won ? "Tüm anahtarları toplayıp otelden başarıyla kaçtın! Harika bir iş çıkardın." : "3 gün boyunca katilden kaçamadın...";
@@ -880,11 +931,25 @@ x<!DOCTYPE html>
         }
 
         document.getElementById('btn-play').addEventListener('click', () => startGame(true));
+        
+        document.getElementById('btn-rotate').addEventListener('click', async () => {
+            try {
+                if (document.documentElement.requestFullscreen) {
+                    await document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    await document.documentElement.webkitRequestFullscreen();
+                }
+                if (screen.orientation && screen.orientation.lock) {
+                    await screen.orientation.lock('landscape');
+                }
+            } catch (err) {}
+        });
+
         document.getElementById('btn-settings').addEventListener('click', () => { document.getElementById('main-menu').style.display='none'; document.getElementById('settings-menu').style.display='flex'; });
         document.getElementById('btn-settings-back').addEventListener('click', () => { document.getElementById('settings-menu').style.display='none'; document.getElementById('main-menu').style.display='flex'; });
         document.getElementById('btn-exit').addEventListener('click', () => alert("Oyundan çıkıldı."));
         document.getElementById('btn-restart').addEventListener('click', () => startGame(currentDay === 1));
-        document.getElementById('sens-slider').addEventListener('input', e => mouseSensitivity = 0.0004 * e.target.value);
+        document.getElementById('sens-slider').addEventListener('input', e => touchSensitivity = 0.0007 * e.target.value);
 
         initEngine();
     </script>
